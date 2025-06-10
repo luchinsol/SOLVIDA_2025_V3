@@ -27,11 +27,9 @@ class ClienteProvider extends ChangeNotifier {
         headers: {"Content-Type": "Application/json"},
       );
       if (res.statusCode == 200) {
-        if (res.statusCode == 200) {
-          await fetchClientePorFirebaseUid(firebaseuid!);
-          notifyListeners();
-        }
-
+        print("...listo psuhesado");
+        await fetchClientePorFirebaseUid(firebaseuid!);
+        print("...finalizae");
         notifyListeners();
       }
       notifyListeners();

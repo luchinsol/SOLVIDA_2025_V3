@@ -251,12 +251,18 @@ class _RegisterState extends State<Register> {
         headers: {"Content-type": "application/json"},
       );
       if (res.statusCode == 201) {
+        final clienteProvider = Provider.of<ClienteProvider>(
+          context,
+          listen: false,
+        );
+        // LLAMAR AL FETCH PARA Q CLIENTE SE LLENE
         // var data = json.decode(res.body);
-
+        await Future.delayed(const Duration(milliseconds: 500));
+        await clienteProvider.fetchClientePorFirebaseUid(user.user!.uid);
         if (mounted) Navigator.of(context).pop();
-        print("Registro manual exitoso");
+        print("Registro google exitoso");
       }
-      context.go('/');
+      context.go('/previa');
 
       // Navegar a la página principal después del login exitoso
     } catch (e) {

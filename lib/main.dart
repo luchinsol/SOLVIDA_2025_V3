@@ -40,6 +40,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:upgrader/upgrader.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -86,7 +87,17 @@ final GoRouter _router = GoRouter(
     GoRoute(
       path: '/',
       builder: (BuildContext context, GoRouterState state) {
-        return const Login();
+        return UpgradeAlert(
+          upgrader: Upgrader(
+            languageCode: "es",
+            minAppVersion: "3.5.0", // Cambia por tu versión mínima
+            // debugDisplayAlways: true, // Solo para testing
+          ),
+          showIgnore: false,
+          showLater: false,
+          child: const Login(),
+        );
+        //    return const Login();
       },
     ),
     GoRoute(

@@ -199,13 +199,25 @@ class _Inicio2State extends State<Inicio2> {
                     child: ElevatedButton(
                       onPressed: () async {
                         if (_formKeyTelefono.currentState!.validate()) {
+                          showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (BuildContext context) {
+                              return Center(
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                ),
+                              );
+                            },
+                          );
                           final telefono = _telefonoController.text.trim();
                           await Provider.of<ClienteProvider>(
                             context,
                             listen: false,
                           ).putTelefono(telefono);
+                          Navigator.pop(context);
+                          Navigator.pop(context);
                         }
-                        Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Color.fromRGBO(1, 37, 255, 1),
