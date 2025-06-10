@@ -120,8 +120,8 @@ class PedidoProvider extends ChangeNotifier {
   Future<void> fetchHistorialPedidos(int clienteId) async {
     try {
       print("...$clienteId");
-      final clinetID = 4;
-      final url = Uri.parse("$microUrl/pedido_history_cliente/${clinetID}");
+      //final clinetID = 4;
+      final url = Uri.parse("$microUrl/pedido_history_cliente/${clienteId}");
       final res = await http.get(url);
 
       if (res.statusCode == 200) {
@@ -135,6 +135,7 @@ class PedidoProvider extends ChangeNotifier {
         notifyListeners();
       } else {
         print("Error al obtener historial: ${res.body}");
+        notifyListeners();
       }
       notifyListeners();
     } catch (e) {

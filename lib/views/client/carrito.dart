@@ -28,6 +28,8 @@ class Carrito extends StatefulWidget {
 }
 
 class _CarritoState extends State<Carrito> {
+  final TextEditingController _telefonoController = TextEditingController();
+  final GlobalKey<FormState> _formKeyTelefono = GlobalKey<FormState>();
   void _mostrarPopUp(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -78,6 +80,127 @@ class _CarritoState extends State<Carrito> {
     );
   }
 
+  String? telefonoValidator(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'El teléfono es obligatorio';
+    }
+    // Elimina espacios, por si acaso
+    final telefono = value.trim();
+    final regex = RegExp(r'^\d{9}$');
+    if (!regex.hasMatch(telefono)) {
+      return 'El teléfono debe tener exactamente 9 dígitos';
+    }
+    return null; // válido
+  }
+
+  void _mostrarPopUpTelefono(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      isScrollControlled: true, // 👈 Esto es clave
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKeyTelefono,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    "Agrega tu número de teléfono",
+                    style: GoogleFonts.manrope(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Icon(Icons.phone_android_outlined),
+                      Container(
+                        width: 1.sw - 80.w,
+                        child: TextFormField(
+                          keyboardType: TextInputType.number,
+                          controller: _telefonoController,
+                          style: GoogleFonts.manrope(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 11.sp,
+                            color: Colors.black,
+                          ),
+                          decoration: InputDecoration(
+                            hintText: 'Ingresa tu teléfono',
+                            hintStyle: GoogleFonts.manrope(fontSize: 11.sp),
+                            // prefixIcon: Icon(Icons.abc),
+                            border: OutlineInputBorder(
+                              borderSide: BorderSide.none,
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            labelText: "Teléfono",
+                            labelStyle: GoogleFonts.manrope(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 11.sp,
+                            ),
+                            filled: true,
+                            fillColor: Colors.grey.shade200,
+
+                            //errorText: _errorText,
+                            helperText:
+                                _telefonoController.text.isEmpty
+                                    ? "Debe tener 9 dígitos"
+                                    : null,
+                          ),
+                          validator: telefonoValidator,
+                          onChanged: (value) {
+                            setState(
+                              () {},
+                            ); // para que el helperText se actualice mientras escribes
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 10.h),
+                  Container(
+                    width: 1.sw,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        if (_formKeyTelefono.currentState!.validate()) {
+                          final telefono = _telefonoController.text.trim();
+                          await Provider.of<ClienteProvider>(
+                            context,
+                            listen: false,
+                          ).putTelefono(telefono);
+                        }
+                        Navigator.pop(context);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color.fromRGBO(1, 37, 255, 1),
+                      ),
+                      child: Text(
+                        "Agregar",
+                        style: GoogleFonts.manrope(
+                          fontSize: 14.sp,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   bool _isInit = true;
 
   @override
@@ -85,6 +208,28 @@ class _CarritoState extends State<Carrito> {
     super.didChangeDependencies();
 
     if (_isInit) {
+      final clienteProvider = Provider.of<ClienteProvider>(
+        context,
+        listen: false,
+      );
+
+      final firebaseUid = clienteProvider.clienteActual?.user.firebaseUid;
+
+      if (firebaseUid != null) {
+        // Verificamos en la API si ya tiene teléfono actualizado
+        clienteProvider.fetchClientePorFirebaseUid(firebaseUid).then((_) {
+          final telefono = clienteProvider.clienteActual?.user.telefono;
+          if (telefono == null ||
+              telefono.trim() == '-' ||
+              telefono.trim().isEmpty) {
+            // Mostramos el popup solo si NO hay teléfono actualizado
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _mostrarPopUpTelefono(context);
+            });
+          }
+        });
+      }
+
       final ubicacionProvider = Provider.of<UbicacionProvider>(
         context,
         listen: false,

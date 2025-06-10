@@ -252,10 +252,17 @@ class _ListaState extends State<Lista> {
                                               );
                                             },
                                           );
-                                          await Future.delayed(
-                                            Duration(seconds: 3),
+                                          await Provider.of<UbicacionProvider>(
+                                            context,
+                                            listen: false,
+                                          ).deleteUbicacion(
+                                            ubicacionActual.id!,
                                           );
+                                          /*await Future.delayed(
+                                            Duration(seconds: 3),
+                                          );*/
                                           Navigator.pop(context);
+                                          setState(() {});
                                         } else {
                                           showDialog(
                                             context: context,

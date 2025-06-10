@@ -1,5 +1,6 @@
 import 'package:app2025_final/models/cupon_model.dart';
 import 'package:app2025_final/models/cuponcategoria_model.dart';
+import 'package:app2025_final/models/producto_model.dart';
 import 'package:app2025_final/providers/carrito_provider.dart';
 import 'package:app2025_final/providers/cupon_provider.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +25,37 @@ class _CuponesState extends State<Cupones> with SingleTickerProviderStateMixin {
 
   int selectedIndex = 0;
   bool _isFirstLoad = true;
+
+  bool _validarProductoEnCarrito(
+    CuponModel cupon,
+    CarritoProvider carritoProvider,
+  ) {
+    // Verificar si la lista de productos del cupón no está vacía
+    if (cupon.productos.isEmpty) {
+      print("❌ El cupón no tiene productos asociados");
+      return false;
+    }
+
+    // Obtener el ID del primer producto del cupón
+    int primerProductoId = cupon.productos.first.id;
+    print("🔍 Buscando producto con ID: $primerProductoId");
+
+    // Verificar en la lista de detalles del pedido
+    bool encontradoEnDetalles = carritoProvider.detallesPedido.any(
+      (detalle) => detalle.productoId == primerProductoId,
+    );
+
+    // También verificar directamente en la lista de productos
+    bool encontradoEnProductos = carritoProvider.itemsCombinados.any(
+      (item) => item is ProductoModel && item.id == primerProductoId,
+    );
+
+    print("✅ Producto encontrado en detalles: $encontradoEnDetalles");
+    print("✅ Producto encontrado en items: $encontradoEnProductos");
+
+    // El producto debe estar en al menos una de las dos listas
+    return encontradoEnDetalles || encontradoEnProductos;
+  }
 
   @override
   void initState() {
@@ -390,11 +422,12 @@ class _CuponesState extends State<Cupones> with SingleTickerProviderStateMixin {
                                 Padding(
                                   padding: EdgeInsets.only(
                                     left: 10.0,
+                                    right: 10.0,
                                     top: 5.r,
                                   ),
                                   child: Row(
                                     mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Column(
                                         crossAxisAlignment:
@@ -426,7 +459,7 @@ class _CuponesState extends State<Cupones> with SingleTickerProviderStateMixin {
 
                                       // BOTÓN DE USO
                                       Container(
-                                        width: 110.w,
+                                        width: 115.w,
                                         height: 26.h,
                                         child: ElevatedButton(
                                           onPressed: () {
@@ -448,6 +481,50 @@ class _CuponesState extends State<Cupones> with SingleTickerProviderStateMixin {
                                                   );
                                                 },
                                               );
+                                              int productoRequerido =
+                                                  cuponActual
+                                                      .productos
+                                                      .first
+                                                      .id;
+                                              bool tieneProducto =
+                                                  carritoProvider.detallesPedido
+                                                      .any(
+                                                        (detalle) =>
+                                                            detalle
+                                                                .productoId ==
+                                                            productoRequerido,
+                                                      );
+                                              if (tieneProducto) {
+                                                // Aplicar cupón
+                                                cuponProvider.setearCupon(
+                                                  cuponActual,
+                                                );
+
+                                                ScaffoldMessenger.of(
+                                                  context,
+                                                ).showSnackBar(
+                                                  SnackBar(
+                                                    content: Text(
+                                                      "¡Cupón aplicado!",
+                                                    ),
+                                                    backgroundColor:
+                                                        Colors.green,
+                                                  ),
+                                                );
+                                              } else {
+                                                // Producto no encontrado
+                                                ScaffoldMessenger.of(
+                                                  context,
+                                                ).showSnackBar(
+                                                  SnackBar(
+                                                    content: Text(
+                                                      "No aplica a tu carrito",
+                                                    ),
+                                                    backgroundColor:
+                                                        Colors.orange,
+                                                  ),
+                                                );
+                                              }
                                               CuponModel
                                               cuponEscogido = CuponModel(
                                                 id: cuponActual.id,
@@ -473,7 +550,7 @@ class _CuponesState extends State<Cupones> with SingleTickerProviderStateMixin {
 
                                               if (mounted)
                                                 Navigator.of(context).pop();
-                                              showDialog(
+                                              /*showDialog(
                                                 context: context,
                                                 builder: (
                                                   BuildContext context,
@@ -599,7 +676,7 @@ class _CuponesState extends State<Cupones> with SingleTickerProviderStateMixin {
                                                     ),
                                                   );
                                                 },
-                                              );
+                                              );*/
                                             } else {
                                               showDialog(
                                                 context: context,
@@ -736,7 +813,7 @@ class _CuponesState extends State<Cupones> with SingleTickerProviderStateMixin {
                                                 255,
                                                 1,
                                               ),
-                                              fontWeight: FontWeight.bold,
+                                              fontWeight: FontWeight.w500,
                                             ),
                                           ),
                                         ),

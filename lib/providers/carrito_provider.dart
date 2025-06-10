@@ -218,6 +218,7 @@ class CarritoProvider extends ChangeNotifier {
   void deleteCarrito() {
     _productoN.clear();
     _promociones.clear();
+    _detallesPedido.clear();
     notifyListeners();
   }
 

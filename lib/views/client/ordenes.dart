@@ -38,6 +38,7 @@ class _OrdenesState extends State<Ordenes> {
   @override
   Widget build(BuildContext context) {
     final historialfinal = context.watch<PedidoProvider>();
+    final cantidad = historialfinal.allhistorial?.length ?? 0;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -45,7 +46,7 @@ class _OrdenesState extends State<Ordenes> {
         title: Text('Pedidos', style: GoogleFonts.manrope(fontSize: 16.sp)),
       ),
       body:
-          10 > 1
+          cantidad > 0
               ? Padding(
                 padding: EdgeInsets.only(top: 27.r, left: 27.r, right: 27.r),
                 child: Column(

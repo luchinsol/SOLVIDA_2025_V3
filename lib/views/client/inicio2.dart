@@ -118,7 +118,7 @@ class _Inicio2State extends State<Inicio2> {
 
   final PageController _bannerController = PageController();
   int _bannerIndex = 0;
-  final notificationsService = NotificationsService(); // Obtén la instancia
+  //final notificationsService = NotificationsService(); // Obtén la instancia
 
   // POP UP TELÉFONO
   void _mostrarPopUp(BuildContext context) {

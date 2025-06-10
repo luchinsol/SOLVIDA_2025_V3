@@ -103,6 +103,21 @@ class UbicacionProvider extends ChangeNotifier {
   }
 
   // MÉTODOS
+  Future<void> deleteUbicacion(int id) async {
+    try {
+      var res = await http.delete(
+        Uri.parse("$microUrl/eliminar_ubicacion/$id"),
+      );
+      if (res.statusCode == 200) {
+        var data = jsonDecode(res.body);
+        print(data);
+        notifyListeners();
+      }
+      notifyListeners();
+    } catch (e) {
+      print("Error en la peticion: $e");
+    }
+  }
 
   Future<void> postNewUbicacion({
     required String? distrito,
